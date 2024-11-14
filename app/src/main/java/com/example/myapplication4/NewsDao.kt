@@ -1,14 +1,17 @@
+package com.example.myapplication4.data
+
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 
 @Dao
 interface NewsDao {
 
-    @Insert
-    suspend fun insertNews(news: News)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)  // Substitui o registro caso o ID já exista
+    suspend fun insert(news: News)
 
     @Update
     suspend fun updateNews(news: News)

@@ -13,31 +13,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 
-@Composable
-fun NewsScreen(navController: NavController, userName: String) {
-    var articles by remember { mutableStateOf<List<Article>>(listOf()) }
-    var isLoading by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
+class NewsViewModel : ViewModel() {
 
+    var articles by mutableStateOf<List<Article>>(listOf())
+    var isLoading by mutableStateOf(false)
+    private val _errorMessage = mutableStateOf<String?>(null)
+    val errorMessage: State<String?> get() = _errorMessage
 
-    fun fetchArticles() {
+    fun fetchArticles(apiKey: String) {
         isLoading = true
-        coroutineScope.launch {
+        viewModelScope.launch {
             try {
-                val apiKey = "nMSQiDweZ2AGZthXwh9yIGO9bkY3tp6v"
                 val response: NYTimesResponse = RetrofitInstance.api.getTopStories(apiKey)
-
-
                 articles = response.results
             } catch (e: Exception) {
-                Toast.makeText(navController.context, "Erro ao carregar as notícias", Toast.LENGTH_SHORT).show()
+                _errorMessage.value = "Erro ao carregar as notícias"
             } finally {
                 isLoading = false
             }
         }
     }
+}
 
+@Composable
+fun NewsScreen(navController: NavController, userName: String) {
+    // Usando viewModel() para garantir que o estado seja mantido entre rotações
+    val newsViewModel: NewsViewModel = viewModel()
+    val errorMessage = newsViewModel.errorMessage.value
+    val articles = newsViewModel.articles
+    val isLoading = newsViewModel.isLoading
 
     Column(
         modifier = Modifier
@@ -53,21 +61,18 @@ fun NewsScreen(navController: NavController, userName: String) {
             modifier = Modifier.align(Alignment.Start).padding(bottom = 16.dp)
         )
 
-
         Text(
             text = "Veja as Principais Notícias",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-
         Button(
-            onClick = { fetchArticles() },
+            onClick = { newsViewModel.fetchArticles("nMSQiDweZ2AGZthXwh9yIGO9bkY3tp6v") },
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
             Text(text = "Buscar Notícias")
         }
-
 
         if (isLoading) {
             CircularProgressIndicator()
@@ -78,17 +83,41 @@ fun NewsScreen(navController: NavController, userName: String) {
                         Text(text = article.title, style = MaterialTheme.typography.titleMedium)
                         article.abstract?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
 
-
-                        Button(
-                            onClick = { navController.navigate("article_details/${article.url}") },
-                            modifier = Modifier.padding(top = 8.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = "Adicionar na lista")
+                            Button(
+                                onClick = { navController.navigate("article_details/${article.url}") },
+                                modifier = Modifier.padding(top = 8.dp)
+                            ) {
+                                Text(text = "Adicionar na lista")
+                            }
+
+                            Button(
+                                onClick = { shareArticle(navController, article.title, article.url) },
+                                modifier = Modifier.padding(top = 8.dp)
+                            ) {
+                                Text(text = "Compartilhar")
+                            }
                         }
                     }
                 }
             }
         }
+
+        errorMessage?.let {
+            Toast.makeText(navController.context, it, Toast.LENGTH_SHORT).show()
+        }
     }
 }
 
+fun shareArticle(navController: NavController, title: String, url: String) {
+    val context = navController.context
+    val shareIntent = android.content.Intent().apply {
+        action = android.content.Intent.ACTION_SEND
+        putExtra(android.content.Intent.EXTRA_TEXT, "Confira esta notícia: $title\n$url")
+        type = "text/plain"
+    }
+    context.startActivity(android.content.Intent.createChooser(shareIntent, "Compartilhar via"))
+}

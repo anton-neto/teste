@@ -2,11 +2,14 @@ package com.example.myapplication4
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -22,13 +25,10 @@ fun LoginScreen(navController: NavController) {
 
     val userDao = AppDatabase.getDatabase(context).userDao()
 
-
     fun loginUser() {
         coroutineScope.launch {
-
             val user = userDao.getUserByEmailAndPassword(email, password)
             if (user != null) {
-
                 navController.navigate("news/${user.name}")
             } else {
                 Toast.makeText(context, "Credenciais inválidas", Toast.LENGTH_SHORT).show()
@@ -42,7 +42,6 @@ fun LoginScreen(navController: NavController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(
             text = "Tela de Login",
             style = MaterialTheme.typography.headlineMedium
@@ -54,17 +53,23 @@ fun LoginScreen(navController: NavController) {
             label = { Text("E-mail") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
+            singleLine = true,
+            keyboardActions = KeyboardActions(onDone = { loginUser() }),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
         )
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Senha") },
-            visualTransformation = PasswordVisualTransformation(), // Ocultando a senha
+            visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
+            singleLine = true,
+            keyboardActions = KeyboardActions(onDone = { loginUser() }),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
         )
 
         Button(
@@ -77,4 +82,5 @@ fun LoginScreen(navController: NavController) {
         }
     }
 }
+
 

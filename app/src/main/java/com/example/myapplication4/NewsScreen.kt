@@ -54,12 +54,26 @@ fun NewsScreen(navController: NavController, userName: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-
-        Text(
-            text = "Logado como $userName",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.align(Alignment.Start).padding(bottom = 16.dp)
-        )
+        // Seção "Logado como" com botão para Gerenciar Usuários
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Logado como $userName",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+            Button(
+                onClick = { navController.navigate("user_management") },
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Text(text = "Gerenciar Usuários")
+            }
+        }
 
         Text(
             text = "Veja as Principais Notícias",

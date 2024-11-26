@@ -85,7 +85,15 @@ fun NewsScreen(navController: NavController, userName: String) {
             onClick = { newsViewModel.fetchArticles("nMSQiDweZ2AGZthXwh9yIGO9bkY3tp6v") },
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
-            Text(text = "Buscar Notícias")
+            Text(text = "Buscar Notícias Relevantes")
+        }
+
+        // Botão para navegar para a tela de CRUD de notícias
+        Button(
+            onClick = { navController.navigate("news_crud") }, // Navega para a rota de CRUD de News
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            Text(text = "Gerenciar Notícias")
         }
 
         if (isLoading) {
@@ -101,12 +109,6 @@ fun NewsScreen(navController: NavController, userName: String) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Button(
-                                onClick = { navController.navigate("article_details/${article.url}") },
-                                modifier = Modifier.padding(top = 8.dp)
-                            ) {
-                                Text(text = "Adicionar na lista")
-                            }
 
                             Button(
                                 onClick = { shareArticle(navController, article.title, article.url) },

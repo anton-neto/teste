@@ -49,6 +49,10 @@ class MainActivity : ComponentActivity() {
                     composable("user_management") {
                         UserManagementScreen(userDao = userDao, navController = navController)
                     }
+                    // Rota para a tela de CRUD de notícias
+                    composable("news_crud") {
+                        NewsManagementScreen(newsDao = newsDao, navController = navController)
+                    }
                 }
             }
         }

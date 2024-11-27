@@ -146,5 +146,3 @@ fun UserRow(user: User, onEditClick: () -> Unit) {
         }
     }
 }
-
-
